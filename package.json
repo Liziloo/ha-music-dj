@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Liziloo/ha-music-dj#readme",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "node-fetch": "^3.3.2",
     "ws": "^8.18.3"
   }

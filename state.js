@@ -11,7 +11,10 @@ let data = {
 
 export function loadState() {
   if (fs.existsSync(FILE)) {
-    data = JSON.parse(fs.readFileSync(FILE, "utf8"));
+    const raw = fs.readFileSync(FILE, "utf8").trim();
+    if (raw) {
+      data = JSON.parse(raw);
+    }
   }
 }
 

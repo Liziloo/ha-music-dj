@@ -51,6 +51,8 @@ export function handleMAEvent(msg, emit) {
       title: current.media_item?.name,
       artists: current.media_item?.artists?.map((a) => a.name) ?? [],
       duration: current.media_item?.duration ?? null,
+      trackUri: current.media_item?.uri,
+      queueId: current.queue_id,
     });
 
     return;

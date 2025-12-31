@@ -1,36 +1,45 @@
-import { BURST_COUNT, BURST_WINDOW, ARTIST_QUARANTINE } from "./config.js";
-import { setState, getState } from "./state.js";
+const SKIP_SECONDS_THRESHOLD = 300;
 
-const shortPlays = [];
+const WINDOW_MS = 60 * 1000; // 1 minute instead of 10
+
+const recentEnds = new Set();
 const artistSkips = new Map();
 
-export function recordPlay(playMs, artistId, now) {
-  if (playMs >= LONG_PLAY) {
-    shortPlays.length = 0;
-    return false;
-  }
-
-  if (playMs < SHORT_PLAY) {
-    shortPlays.push(now);
-    prune(shortPlays, now - BURST_WINDOW);
-
-    const list = artistSkips.get(artistId) ?? [];
-    list.push(now);
-    prune(list, now - 45 * 60_000);
-    artistSkips.set(artistId, list);
-
-    if (list.length >= 2) {
-      const state = getState();
-      state.artistQuarantine[artistId] = now + ARTIST_QUARANTINE;
-      setState(state);
+function prune(now) {
+  for (const [artist, entries] of artistSkips.entries()) {
+    const filtered = entries.filter((e) => now - e.ts <= WINDOW_MS);
+    if (filtered.length === 0) {
+      artistSkips.delete(artist);
+    } else {
+      artistSkips.set(artist, filtered);
     }
-
-    return shortPlays.length >= BURST_COUNT;
   }
-
-  return false;
 }
 
-function prune(arr, cutoff) {
-  while (arr.length && arr[0] < cutoff) arr.shift();
+export function recordTrackEnd(evt) {
+  const { trackUri, artist, secondsPlayed } = evt;
+
+  // Deduplicate repeated MA events
+  if (recentEnds.has(trackUri)) return;
+  recentEnds.add(trackUri);
+  setTimeout(() => recentEnds.delete(trackUri), 60_000);
+
+  if (secondsPlayed >= SKIP_SECONDS_THRESHOLD) return;
+
+  const now = Date.now();
+  prune(now);
+
+  if (!artistSkips.has(artist)) {
+    artistSkips.set(artist, []);
+  }
+
+  artistSkips.get(artist).push({ ts: now });
+}
+
+export function getSkipCounts() {
+  const out = {};
+  for (const [artist, entries] of artistSkips.entries()) {
+    out[artist] = entries.length;
+  }
+  return out;
 }

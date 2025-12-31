@@ -8,8 +8,14 @@ import {
   shouldAutoSkipOnStart,
   recordSkipForQuarantine,
 } from "./hygiene.js";
+import { connectHA } from "./ha.js";
+
 
 loadStorage();
+
+let djEnabled = true; // default until HA tells us otherwise
+
+console.log("DJ initial state =", djEnabled);
 
 let wsRef = null;
 
@@ -25,7 +31,7 @@ function emit(type, payload) {
       now
     );
 
-    if (hit && wsRef && payload.queueId) {
+    if (djEnabled && hit && wsRef && payload.queueId) {
       console.log(
         "AUTO-SKIP on start:",
         hit.reason,
@@ -59,6 +65,13 @@ function emit(type, payload) {
   // Keep the raw normalized output while we validate
   console.log(type, payload);
 }
+
+connectHA((event) => {
+  if (event?.data?.entity_id === "input_boolean.music_dj_enabled") {
+    djEnabled = event.data.new_state.state === "on";
+    console.log("DJ enabled =", djEnabled);
+  }
+});
 
 connectMA(
   (msg) => handleMAEvent(msg, emit),

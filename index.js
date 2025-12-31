@@ -1,6 +1,11 @@
 import "dotenv/config";
-import { connectWS } from "./ha.js";
+import { connectMA } from "./ma.js";
+import { handleMAEvent } from "./events.js";
 
-connectWS(() => {
-  console.log("Connected to Home Assistant WebSocket API");
+function emit(type, payload) {
+  console.log(type, payload);
+}
+
+connectMA((msg) => {
+  handleMAEvent(msg, emit);
 });

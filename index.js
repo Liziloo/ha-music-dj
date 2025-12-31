@@ -67,7 +67,10 @@ function emit(type, payload) {
 }
 
 connectHA((event) => {
-  if (event?.data?.entity_id === "input_boolean.music_dj_enabled") {
+  if (
+    event?.event_type === "state_changed" &&
+    event?.data?.entity_id === "input_boolean.music_dj_enabled"
+  ) {
     djEnabled = event.data.new_state.state === "on";
     console.log("DJ enabled =", djEnabled);
   }

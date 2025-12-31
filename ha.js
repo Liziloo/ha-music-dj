@@ -11,7 +11,6 @@ export function connectHA(onEvent, onReady) {
 
   ws.on("message", (raw) => {
     const msg = JSON.parse(raw);
-    console.log("HA WS IN:", msg);
 
     if (msg.type === "auth_required") {
       ws.send(

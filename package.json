@@ -1,0 +1,25 @@
+{
+  "name": "ha-music-dj",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Liziloo/ha-music-dj.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Liziloo/ha-music-dj/issues"
+  },
+  "homepage": "https://github.com/Liziloo/ha-music-dj#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "ws": "^8.18.3"
+  }
+}
